@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
+
 public class Tokenizer
 {
     private static int shelf = 0;
@@ -160,8 +161,9 @@ public class Tokenizer
 
 
 
-    public static List<String> tokens(String filename)
+    public static List<String> tokens(String filename, StopWords stopwords)
     {
+        // All lower-cased, stop-worded, tokens.
         List<String> tokens =
             new LinkedList<String>();
 
@@ -175,7 +177,13 @@ public class Tokenizer
                         "ISO-8859-1"));
             while ((currentLine = reader.readLine()) != null)
             {
-                tokens.addAll(tokenizeString(currentLine));
+                for (String token : tokenizeString(currentLine))
+                {
+                    if (!stopwords.contains(token))
+                    {
+                        tokens.add(token);
+                    }
+                }
             }
         }
         catch (IOException e)

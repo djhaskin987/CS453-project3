@@ -6,13 +6,14 @@ public class MNB_classification
 {
     Map<String,List<String>> CorpusTokens;
 
-    public MNB_classification(String CorpusDirName)
+    public MNB_classification(String CorpusDirName, String StopwordsFile)
     {
         CorpusTokens = new HashMap<String,List<String>>();
-        LoadCorpusTokens(CorpusDirName);
+        StopWords sw = new StopWords(StopwordsFile);
+        LoadCorpusTokens(CorpusDirName, sw);
     }
 
-    private void LoadCorpusTokens(String CorpusDirName)
+    private void LoadCorpusTokens(String CorpusDirName, StopWords sw)
     {
         System.out.println("Tokenizing corpus found under " + CorpusDirName +
                 "...");
@@ -25,13 +26,13 @@ public class MNB_classification
 
             if (listOfFiles[i].isDirectory())
             {
-                LoadCorpusTokens(RelativePath);
+                LoadCorpusTokens(RelativePath,sw);
             }
             else
             {
                 String FileName = listOfFiles[i].getName();
                 List<String> tokList =
-                    Tokenizer.tokens(RelativePath);
+                    Tokenizer.tokens(RelativePath, sw);
                 CorpusTokens.put(RelativePath, tokList);
             }
         }
@@ -40,7 +41,8 @@ public class MNB_classification
 
     public static void main(String args[])
     {
-        MNB_classification c = new MNB_classification("../test");
+        MNB_classification c =
+            new MNB_classification("../test", "../data/stopwords");
         System.out.println("Tokens:");
         System.out.println(c.CorpusTokens);
     }
