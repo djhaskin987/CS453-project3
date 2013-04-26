@@ -1,1 +1,14 @@
-Make sure training and test sets are properly paritioned
+featureSelection
+test featureSelection
+MNB_probability
+computeWordProbability
+computeClassProbability
+getWordProbability
+getClassProbability
+label (MNB_classification)
+MNB_evaluation
+accuracyMeasure
+Classifier
+Classifier arguments
+Classifier test
+Classifier data

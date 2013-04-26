@@ -13,13 +13,14 @@ public class MNB_classification
     Map<String,Pair<String,Map<String, Integer>>>
         DC_training;
     Map<String,Pair<String,Map<String, Integer>>>
-        test;
+        test_set;
     Map<String,Pair<String,Map<String, Integer>>>
-        training;
+        training_set;
     Set<String> Classifications;
     Set<String> Vocabulary;
 
-    public MNB_classification(String CorpusDirName, String StopwordsFile)
+    public MNB_classification(String CorpusDirName, String StopwordsFile,
+            bool FeatureSelectionApplied, int M)
     {
         Map<String,List<String>> CorpusTokens =
             new HashMap<String,List<String>>();
@@ -36,6 +37,49 @@ public class MNB_classification
         LoadTrainingAndTest(DC,
                 DC_training,
                 DC_test);
+
+        if (FeatureSelectionApplied)
+        {
+            selectedFeatures = featureSelection(DC_training, M);
+            training_set = new HashMap<String,
+                         Pair<String, Map<String, Integer>>>();
+            test_set = new HashMap<String,
+                         Pair<String, Map<String, Integer>>>();
+            NarrowFeatureDocSet(DC_training, training_set, selectedFeatures);
+            NarrowFeatureDocSet(DC_test, test_set, selectedFeatures);
+        }
+        else
+        {
+            training_set = DC_training;
+            test_set = DC_test;
+        }
+    }
+
+    public Set<String> featureSelection() {}
+
+    private void NarrowFeatureDocSet(
+            Map<String,Pair<String,Map<String, Integer>>> raw_set,
+            Map<String,Pair<String,Map<String, Integer>>> set,
+            Set<String> selectedFeatures)
+    {
+        for (Map.Entry<String,Pair<String,Map<String, Integer>>>
+                Doc : raw_set)
+        {
+            Pair DocPair = Doc.getValue();
+            Map<String, Integer> DocFeatures = DocPair.Second();
+            Map<String, Integer> newFeatures = new HashMap<String, Integer>();
+            for (String feature : selectedFeatures)
+            {
+                if (DocFeatures.containsKey(feature))
+                {
+                    newFeatures.put(feature, DocFeatures.get(feature));
+                }
+            }
+            set.put(set,
+                    new Pair<String, Map<String, Integer>> (
+                        DocPair.First(),
+                        newFeatures));
+        }
     }
 
     private void LoadTrainingAndTest(
