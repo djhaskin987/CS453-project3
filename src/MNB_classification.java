@@ -13,9 +13,9 @@ public class MNB_classification
     Map<String,Pair<String,Map<String, Integer>>>
         DC_training;
     Map<String,Pair<String,Map<String, Integer>>>
-        DC_test;
+        test;
     Map<String,Pair<String,Map<String, Integer>>>
-        DC_training;
+        training;
     Set<String> Classifications;
     Set<String> Vocabulary;
 
@@ -55,7 +55,7 @@ public class MNB_classification
         int RestOfTheDocuments = DC.size();
 
         // Find out how many documents I need in the training set ("K").
-        int LeftTrainingToPick = (int)(TRAINING_RATIO * denominator);
+        int LeftTrainingToPick = (int)(TRAINING_RATIO * RestOfTheDocuments);
 
         // Guard against divide by zero
         if (RestOfTheDocuments == 0)
@@ -189,5 +189,7 @@ public class MNB_classification
         System.out.println(c.DC_test);
         System.out.println("CLASSES");
         System.out.println(c.Classifications);
+        System.out.println("VOCAB");
+        System.out.println(c.Vocabulary);
     }
 }

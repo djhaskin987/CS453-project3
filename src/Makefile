@@ -1,11 +1,11 @@
 
-all: Search.class
+all: MNB_classification.class
 
 clean:
 	- rm -rf *.class
 
-Search.class: Classifier.java StopWords.class Tokenizer.class MNB_classification.class
-	javac -Xlint Classifier.java
+#Search.class: Classifier.java StopWords.class Tokenizer.class MNB_classification.class
+#	javac -Xlint Classifier.java
 
 MNB_classification.class: MNB_classification.java Tokenizer.class Pair.class
 	javac -Xlint MNB_classification.java
