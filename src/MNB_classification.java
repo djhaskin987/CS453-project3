@@ -20,7 +20,7 @@ public class MNB_classification
     Set<String> Vocabulary;
 
     public MNB_classification(String CorpusDirName, String StopwordsFile,
-            bool FeatureSelectionApplied, int M)
+            boolean FeatureSelectionApplied, int M)
     {
         Map<String,List<String>> CorpusTokens =
             new HashMap<String,List<String>>();
@@ -40,7 +40,7 @@ public class MNB_classification
 
         if (FeatureSelectionApplied)
         {
-            selectedFeatures = featureSelection(DC_training, M);
+            Set<String> selectedFeatures = featureSelection(DC_training, M);
             training_set = new HashMap<String,
                          Pair<String, Map<String, Integer>>>();
             test_set = new HashMap<String,
@@ -55,7 +55,265 @@ public class MNB_classification
         }
     }
 
-    public Set<String> featureSelection() {}
+
+
+    public Set<String> featureSelection(
+            Map<String,Pair<String,Map<String, Integer>>> DC_training,
+            int M)
+    {
+
+        // Get P(c)
+        Map<String, Integer> DC_ClassCounts = new HashMap<String,Integer>();
+        Map<String, Integer> DC_WordCounts = new HashMap<String,Integer>();
+        Map<String, Integer> DC_NotWordCounts = new HashMap<String,Integer>();
+
+        // word -> (class -> count)
+        Map<String,
+            Map<String, Integer>> DC_WordClassCounts;
+        Utilities.MapMapInit(DC_WordClassCounts, Vocabulary);
+        Map<String,
+            Map<String, Integer>> DC_NotWordClassCounts;
+        Utilities.MapMapInit(DC_NotWordClassCounts, Vocabulary);
+
+        for (String w : Vocabulary)
+        {
+            DC_WordClassCounts.put(w, new HashMap<String, Integer>());
+            DC_NotWordClassCounts.put(w, new HashMap<String, Integer>());
+        }
+
+        for (Map.Entry<String,Pair<String,Map<String,Integer>>>
+                entry : DC_training.entrySet())
+        {
+            String ObservedClass = entry.getValue().First();
+            Set<String> ObservedWords = entry.getValue().Second().getKeySet();
+            for (String word : Vocabulary)
+            {
+                HashMap<String, Integer> ClassCountsGivenWord =
+                    DC_WordClassCounts.get(word);
+                HashMap<String, Integer> ClassCountsGivenNotWord =
+                    DC_NotWordClassCounts.get(word);
+                if (ObservedWords.contains(word))
+                {
+                    Utilities.MapIncrementCount<String>(
+                            DC_WordCounts,
+                            word);
+                    Utilities.MapIncrementCount<String>(
+                            ClassCountsGivenWord,
+                            ObservedClass);
+
+                }
+                else
+                {
+                    Utilities.MapIncrementCount<String>(
+                            DC_NotWordCounts,
+                            word);
+                    Utilities.MapIncrementCount<String>(
+                            ClassCountsGivenNotWord,
+                            ObservedClass);
+                }
+                DC_WordClassCounts.remove(word);
+                DC_NotWordClassCounts.remove(word);
+                DC_WordClassCounts.put(word, ClassCountsGivenWord);
+                DC_NotWordClassCounts.put(word, ClassCountsGivenNotWord);
+
+            }
+            Utilities.MapIncrementCount<String>(DC_ClassCounts,
+                    ObservedClass);
+        }
+
+        Map<String, Double> P_c = new HashMap<String,Double>();
+        for (String c : Classifications)
+        {
+            Integer Count = DC_ClassCounts.get(c);
+            if (Count == null)
+            {
+                Count = new Integer(0);
+                DC_ClassCounts.put(c, Count);
+            }
+            P_c.put(c, Count.doubleValue() /
+                (double) DC_training.size());
+        }
+
+        Map<String, Double> P_w = new HashMap<String,Double>();
+        for (String word : Vocabulary)
+        {
+            Integer Count = DC_WordCounts.get(word);
+            if (Count == null)
+            {
+                Count = new Integer(0);
+                DC_WordCounts.put(word, Count);
+            }
+            P_w.put(word, Count.doubleValue() /
+                (double) DC_training.size());
+        }
+
+        Map<String, Double> P_not_w = new HashMap<String,Double>();
+        for (String word : Vocabulary)
+        {
+            Integer Count = DC_NotWordCounts.get(word);
+            if (Count == null)
+            {
+                Count = new Integer(0);
+                DC_NotWordCounts.put(word, Count);
+            }
+            P_not_w.put(word, Count.doubleValue() /
+                (double) DC_training.size());
+        }
+
+        Map<String, Map<String, Double>>
+            P_c_given_w;
+        Utilities.MapMapInit(P_c_given_w, Vocabulary);
+        Map<String, Map<String, Double>>
+            P_c_given_not_w;
+        Utilities.MapMapInit(P_c_given_not_w, Vocabulary);
+
+        for (String word : Vocabulary)
+        {
+            Map<String, Double> ClassProbsGivenWord =
+                new HashMap<String,Double>();
+            Map<String, Double> ClassProbsGivenNotWord =
+                new HashMap<String,Double>();
+
+            Map<String, Integer>
+                WordClassCounts = DC_WordClassCounts.get(word);
+            Map<String, Integer>
+                NotWordClassCounts = DC_NotWordClassCounts.get(word);
+            if (WordClassCounts == null)
+            {
+                WordClassCounts = new HashMap<String,Integer>();
+            }
+            if (NotWordClassCounts == null)
+            {
+                NotWordClassCounts = new HashMap<String,Integer>();
+            }
+            Integer WordDocCount =
+                DC_WordCounts.get(word);
+            Integer NotWordDocCount =
+                DC_NotWordCounts.get(word);
+
+            for (String c : Classifications)
+            {
+                Integer ClassCountGivenWord = WordClassCounts.get(c);
+                if (ClassCountGivenWord == null)
+                {
+                    ClassCountGivenWord = new Integer(0);
+                    WordClassCounts.put(c,ClassCountGivenWord);
+                }
+                ClassProbsGivenWord.put(
+                        c,
+                        ClassCountGivenWord.doubleValue() /
+                        WordDocCount.doubleValue());
+
+                Integer ClassCountGivenNotWord = NotWordClassCounts.get(c);
+                if (ClassCountGivenNotWord == null)
+                {
+                    ClassCountGivenNotWord = new Integer(0);
+                    NotWordClassCounts.put(c,ClassCountGivenNotWord);
+                }
+                ClassProbsGivenNotWord.put(
+                        c,
+                        ClassCountGivenNotWord.doubleValue() /
+                        NotWordDocCount.doubleValue());
+            }
+
+            P_c_given_w.put(word, ClassProbsGivenWord);
+            P_c_given_not_w.put(word, ClassProbsGivenNotWord);
+        }
+    }
+
+    // NOW, compute information gain
+    Map<String, Double> WordInformationGain =
+        new HashMap<String, Double>();
+    for (String word : Vocabulary)
+    {
+        double IGw = 0.0;
+        double log_coef = Math.log(2);
+        for (String c : Classifications)
+        {
+            IGw -= P_c.get(c).doubleValue() *
+                Math.log(P_c.get(c).doubleValue()) / log_coef;
+
+
+        }
+
+
+
+
+
+
+
+        for (Map.Entry<String,Map<String,Integer>>
+               WordClassCountsEntry : DC_WordClassCounts.entrySet())
+        {
+            CurrentWordDocCount = WordDocCountStream.next();
+            CurrentWordDocCount = NotWordDocCountStream.next();
+            Map<String, Integer> WordClassCounts =
+                WordClassCountsEntry.getValue();
+            Map<String, Double> ClassProbabilityGivenWord =
+                P_c_given_w.get(WordClassCountsEntry.getKey());
+
+            for (Map.Entry<String, Double>
+                    ClassCountGivenWord : WordClassCounts.entrySet())
+            {
+                ClassProbabilityGivenWord.put(
+                        ClassCountGivenWord.getKey(),
+                        ClassCountGivenWord.getValue().doubleValue() /
+                        CurrentWordDocCount.getValue().doubleValue());
+            }
+        }
+
+
+
+        Iterator<Map.Entry<String,Integer>> NotWordDocCountStream =
+            DC_NotWordCounts.entrySet().iterator();
+        Map.Entry<String, Integer> CurrentNotWordDocCount;
+
+
+        for (Map.Entry<String,Map<String,Integer>>
+               WordClassCountsEntry : DC_WordClassCount.entrySet())
+        {
+            CurrentWordDocCount = WordDocCountStream.next();
+            CurrentWordDocCount = NotWordDocCountStream.next();
+            Map<String, Integer> WordClassCounts =
+                WordClassCountsEntry.getValue();
+            Map<String, Double> ClassProbabilityGivenWord =
+                P_c_given_w.get(WordClassCountsEntry.getKey());
+
+            for (Map.Entry<String, Double>
+                    ClassCountGivenWord : WordClassCounts.entrySet())
+            {
+                ClassProbabilityGivenWord.put(
+                        ClassCountGivenWord.getKey(),
+                        ClassCountGivenWord.getValue().doubleValue() /
+                        CurrentWordDocCount.getValue().doubleValue());
+            }
+        }
+            for (Map.Entry<String, Double>
+                    ClassCountGivenNotWord : NotWordClassCounts.entrySet())
+            {
+                ClassProbabilityGivenWord.put(
+                        ClassCountGivenWord.getKey(),
+                        ClassCountGivenWord.getValue().doubleValue() /
+                        CurrentWordDocCount.getValue().doubleValue());
+            }
+
+
+            Map<String, Double> ClassProbabilityGivenWord =
+                P_c_given_w.remove(WordClassCountsEntry.getKey());
+            P_c_given_w.put(
+                    WordClassCount.getKey(),
+                    ClassProbabilityGivenWord);
+
+
+        }
+
+        // Get P(c|w)
+        // Get P(c|!w)
+
+
+
+
+    }
 
     private void NarrowFeatureDocSet(
             Map<String,Pair<String,Map<String, Integer>>> raw_set,
@@ -131,7 +389,9 @@ public class MNB_classification
                 RestOfTheDocuments--;
                 DC_test.put(
                         Doc.getKey(),
-                        Doc.getValue());
+                        new Pair<String,Map<String,Integer>>(
+                            "", // blank out the class
+                            Doc.getValue().Second()));
             }
         }
 
