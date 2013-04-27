@@ -404,7 +404,7 @@ public class MNB_classification
                 DC_test.put(
                         Doc.getKey(),
                         new Pair<String,Map<String,Integer>>(
-                            "", // blank out the class
+                            Doc.getValue().First(),
                             Doc.getValue().Second()));
             }
         }
