@@ -40,7 +40,7 @@ public class MNB_classification
 
         if (FeatureSelectionApplied)
         {
-            Set<String> selectedFeatures = featureSelection(DC_training, M);
+            Set<String> selectedFeatures = featureSelection(M);
             training_set = new HashMap<String,
                          Pair<String, Map<String, Integer>>>();
             test_set = new HashMap<String,
@@ -57,11 +57,9 @@ public class MNB_classification
 
 
 
-    public Set<String> featureSelection(
-            Map<String,Pair<String,Map<String, Integer>>> DC_training,
+    private Set<String> featureSelection(
             int M)
     {
-
         // Get P(c)
         Map<String, Integer> DC_ClassCounts = new HashMap<String,Integer>();
         Map<String, Integer> DC_WordCounts = new HashMap<String,Integer>();
@@ -69,11 +67,11 @@ public class MNB_classification
 
         // word -> (class -> count)
         Map<String,
-            Map<String, Integer>> DC_WordClassCounts;
-        Utilities.MapMapInit(DC_WordClassCounts, Vocabulary);
+            Map<String, Integer>> DC_WordClassCounts =
+                Utilities.<String,String,Integer>MapMapInit(Vocabulary);
         Map<String,
-            Map<String, Integer>> DC_NotWordClassCounts;
-        Utilities.MapMapInit(DC_NotWordClassCounts, Vocabulary);
+            Map<String, Integer>> DC_NotWordClassCounts =
+                Utilities.<String,String,Integer>MapMapInit(Vocabulary);
 
         for (String w : Vocabulary)
         {
@@ -85,29 +83,28 @@ public class MNB_classification
                 entry : DC_training.entrySet())
         {
             String ObservedClass = entry.getValue().First();
-            Set<String> ObservedWords = entry.getValue().Second().getKeySet();
+            Set<String> ObservedWords = entry.getValue().Second().keySet();
             for (String word : Vocabulary)
             {
-                HashMap<String, Integer> ClassCountsGivenWord =
+                Map<String, Integer> ClassCountsGivenWord =
                     DC_WordClassCounts.get(word);
-                HashMap<String, Integer> ClassCountsGivenNotWord =
+                Map<String, Integer> ClassCountsGivenNotWord =
                     DC_NotWordClassCounts.get(word);
                 if (ObservedWords.contains(word))
                 {
-                    Utilities.MapIncrementCount<String>(
+                    Utilities.MapIncrementCount(
                             DC_WordCounts,
                             word);
-                    Utilities.MapIncrementCount<String>(
+                    Utilities.MapIncrementCount(
                             ClassCountsGivenWord,
                             ObservedClass);
-
                 }
                 else
                 {
-                    Utilities.MapIncrementCount<String>(
+                    Utilities.MapIncrementCount(
                             DC_NotWordCounts,
                             word);
-                    Utilities.MapIncrementCount<String>(
+                    Utilities.MapIncrementCount(
                             ClassCountsGivenNotWord,
                             ObservedClass);
                 }
@@ -117,7 +114,7 @@ public class MNB_classification
                 DC_NotWordClassCounts.put(word, ClassCountsGivenNotWord);
 
             }
-            Utilities.MapIncrementCount<String>(DC_ClassCounts,
+            Utilities.MapIncrementCount(DC_ClassCounts,
                     ObservedClass);
         }
 
@@ -161,11 +158,11 @@ public class MNB_classification
         }
 
         Map<String, Map<String, Double>>
-            P_c_given_w;
-        Utilities.MapMapInit(P_c_given_w, Vocabulary);
+            P_c_given_w =
+            Utilities.<String,String,Double>MapMapInit(Vocabulary);
         Map<String, Map<String, Double>>
-            P_c_given_not_w;
-        Utilities.MapMapInit(P_c_given_not_w, Vocabulary);
+            P_c_given_not_w =
+            Utilities.<String,String,Double>MapMapInit(Vocabulary);
 
         for (String word : Vocabulary)
         {
@@ -219,100 +216,58 @@ public class MNB_classification
             P_c_given_w.put(word, ClassProbsGivenWord);
             P_c_given_not_w.put(word, ClassProbsGivenNotWord);
         }
-    }
 
-    // NOW, compute information gain
-    Map<String, Double> WordInformationGain =
-        new HashMap<String, Double>();
-    for (String word : Vocabulary)
-    {
-        double IGw = 0.0;
-        double log_coef = Math.log(2);
-        for (String c : Classifications)
+        System.out.println("P(c): " + P_c);
+        System.out.println("P(w): " + P_w);
+        System.out.println("P(~w): " + P_not_w);
+        System.out.println("P(c|w): " + P_c_given_w);
+        System.out.println("P(c|~w): " + P_c_given_not_w);
+
+        // NOW, compute information gain
+        List<Pair<Double, String>> WordInformationGain =
+            new ArrayList<Pair<Double, String>>();
+        for (String word : Vocabulary)
         {
-            IGw -= P_c.get(c).doubleValue() *
-                Math.log(P_c.get(c).doubleValue()) / log_coef;
+            double IGw = 0.0;
+            double log_coef = Math.log(2.0);
+            double CurrentPw = P_w.get(word).doubleValue();
+            double CurrentPnotw = P_not_w.get(word).doubleValue();
 
+            Map<String, Double> ClassProbGivenWord =
+                P_c_given_w.get(word);
+            Map<String, Double> ClassProbGivenNotWord =
+                P_c_given_not_w.get(word);
 
+            for (String c : Classifications)
+            {
+                System.out.println("IGw first: " + IGw);
+                IGw -= P_c.get(c).doubleValue() *
+                    Math.log(P_c.get(c).doubleValue()) / log_coef;
+                System.out.println("IGw next: " + IGw);
+                IGw += CurrentPw * ClassProbGivenWord.get(c).doubleValue() *
+                    Math.log(ClassProbGivenWord.get(c).doubleValue()) /
+                    log_coef;
+                System.out.println("IGw again: " + IGw);
+                IGw += CurrentPnotw *
+                    ClassProbGivenNotWord.get(c).doubleValue() *
+                    Math.log(ClassProbGivenNotWord.get(c).doubleValue()) /
+                    log_coef;
+                System.out.println("IGw finally: " + IGw);
+            }
+            WordInformationGain.add(new Pair<Double,String>(IGw,word));
         }
-
-
-
-
-
-
-
-        for (Map.Entry<String,Map<String,Integer>>
-               WordClassCountsEntry : DC_WordClassCounts.entrySet())
+        System.out.println("RANKS:" +
+                WordInformationGain);
+        java.util.Collections.sort(WordInformationGain,
+                new ReverseComparator<Pair<Double,String>>());
+        Set<String> returned = new HashSet<String>();
+        for (int i = 0; i < M; i++)
         {
-            CurrentWordDocCount = WordDocCountStream.next();
-            CurrentWordDocCount = NotWordDocCountStream.next();
-            Map<String, Integer> WordClassCounts =
-                WordClassCountsEntry.getValue();
-            Map<String, Double> ClassProbabilityGivenWord =
-                P_c_given_w.get(WordClassCountsEntry.getKey());
-
-            for (Map.Entry<String, Double>
-                    ClassCountGivenWord : WordClassCounts.entrySet())
-            {
-                ClassProbabilityGivenWord.put(
-                        ClassCountGivenWord.getKey(),
-                        ClassCountGivenWord.getValue().doubleValue() /
-                        CurrentWordDocCount.getValue().doubleValue());
-            }
+            returned.add(WordInformationGain.get(i).Second());
         }
-
-
-
-        Iterator<Map.Entry<String,Integer>> NotWordDocCountStream =
-            DC_NotWordCounts.entrySet().iterator();
-        Map.Entry<String, Integer> CurrentNotWordDocCount;
-
-
-        for (Map.Entry<String,Map<String,Integer>>
-               WordClassCountsEntry : DC_WordClassCount.entrySet())
-        {
-            CurrentWordDocCount = WordDocCountStream.next();
-            CurrentWordDocCount = NotWordDocCountStream.next();
-            Map<String, Integer> WordClassCounts =
-                WordClassCountsEntry.getValue();
-            Map<String, Double> ClassProbabilityGivenWord =
-                P_c_given_w.get(WordClassCountsEntry.getKey());
-
-            for (Map.Entry<String, Double>
-                    ClassCountGivenWord : WordClassCounts.entrySet())
-            {
-                ClassProbabilityGivenWord.put(
-                        ClassCountGivenWord.getKey(),
-                        ClassCountGivenWord.getValue().doubleValue() /
-                        CurrentWordDocCount.getValue().doubleValue());
-            }
-        }
-            for (Map.Entry<String, Double>
-                    ClassCountGivenNotWord : NotWordClassCounts.entrySet())
-            {
-                ClassProbabilityGivenWord.put(
-                        ClassCountGivenWord.getKey(),
-                        ClassCountGivenWord.getValue().doubleValue() /
-                        CurrentWordDocCount.getValue().doubleValue());
-            }
-
-
-            Map<String, Double> ClassProbabilityGivenWord =
-                P_c_given_w.remove(WordClassCountsEntry.getKey());
-            P_c_given_w.put(
-                    WordClassCount.getKey(),
-                    ClassProbabilityGivenWord);
-
-
-        }
-
-        // Get P(c|w)
-        // Get P(c|!w)
-
-
-
-
+        System.out.println("Narrowed features down to: " +
+                returned);
+        return returned;
     }
 
     private void NarrowFeatureDocSet(
@@ -321,9 +276,9 @@ public class MNB_classification
             Set<String> selectedFeatures)
     {
         for (Map.Entry<String,Pair<String,Map<String, Integer>>>
-                Doc : raw_set)
+                Doc : raw_set.entrySet())
         {
-            Pair DocPair = Doc.getValue();
+            Pair<String, Map<String, Integer>> DocPair = Doc.getValue();
             Map<String, Integer> DocFeatures = DocPair.Second();
             Map<String, Integer> newFeatures = new HashMap<String, Integer>();
             for (String feature : selectedFeatures)
@@ -333,7 +288,7 @@ public class MNB_classification
                     newFeatures.put(feature, DocFeatures.get(feature));
                 }
             }
-            set.put(set,
+            set.put(Doc.getKey(),
                     new Pair<String, Map<String, Integer>> (
                         DocPair.First(),
                         newFeatures));
@@ -423,7 +378,6 @@ public class MNB_classification
             Map<String, Integer>
                 WordCounts = new HashMap<String,Integer>();
 
-
             for (String token : FileTokens.getValue())
             {
                 Vocabulary.add(token);
@@ -484,13 +438,19 @@ public class MNB_classification
     public static void main(String args[])
     {
         MNB_classification c =
-            new MNB_classification("../test/s9test", "../data/stopwords");
+            new MNB_classification("../test/s9test", "../data/stopwords",
+                    true,
+                    2);
         System.out.println("Tokens:");
         System.out.println(c.DC);
-        System.out.println("TRAINING");
+        System.out.println("RAW TRAINING");
         System.out.println(c.DC_training);
-        System.out.println("TEST");
+        System.out.println("RAW TEST");
         System.out.println(c.DC_test);
+        System.out.println("TRAINING");
+        System.out.println(c.training_set);
+        System.out.println("TEST");
+        System.out.println(c.test_set);
         System.out.println("CLASSES");
         System.out.println(c.Classifications);
         System.out.println("VOCAB");
