@@ -1,5 +1,5 @@
 
-all: MNB_classification.class
+all: Project3.class
 
 clean:
 	- rm -rf *.class
@@ -7,7 +7,14 @@ clean:
 #Search.class: Classifier.java StopWords.class Tokenizer.class MNB_classification.class
 #	javac -Xlint Classifier.java
 
-MNB_classification.class: MNB_classification.java Tokenizer.class Pair.class Utilities.class ReverseComparator.class MNB_probability.class
+
+Project3.class: MNB_classification.class MNB_evaluation.class Tokenizer.class Project3.java
+	javac -Xlint Project3.java
+
+MNB_evaluation.class: MNB_classification.class MNB_evaluation.java
+	javac -Xlint MNB_evaluation.java
+
+MNB_classification.class: MNB_classification.java Pair.class Utilities.class ReverseComparator.class MNB_probability.class
 	javac -Xlint MNB_classification.java
 
 Tokenizer.class: Tokenizer.java StopWords.class

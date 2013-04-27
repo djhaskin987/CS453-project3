@@ -163,6 +163,7 @@ public class Tokenizer
 
     public static List<String> tokens(String filename, StopWords stopwords)
     {
+        System.out.println("Tokenizing " + filename + "...");
         // All lower-cased, stop-worded, tokens.
         List<String> tokens =
             new LinkedList<String>();

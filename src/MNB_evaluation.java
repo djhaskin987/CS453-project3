@@ -7,7 +7,8 @@ public class MNB_evaluation
     {
         this.c = c;
     }
-    public static double accuracyMeasure(
+
+    public double accuracyMeasure(
         Map<String,Pair<String,Map<String, Integer>>>
             test_set)
     {
@@ -18,7 +19,7 @@ public class MNB_evaluation
         {
             String ShouldBeLabeled = Document.getValue().First();
             String IsLabeled = c.label(Document.getValue().Second());
-            if (ShouldBeLabeled == IsLabeled)
+            if (ShouldBeLabeled.equals(IsLabeled))
             {
                 CorrectCount++;
             }
@@ -26,7 +27,3 @@ public class MNB_evaluation
         return (double)CorrectCount / (double)test_set.size();
     }
 }
-
-
-
- 

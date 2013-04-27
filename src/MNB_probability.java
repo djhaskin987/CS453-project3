@@ -13,8 +13,6 @@ public class MNB_probability
         training_set)
     {
         this.training_set = training_set;
-        WordProbabilities = new HashMap<String, Map<String, Double>>();
-        ClassProbabilities = new HashMap<String, Double>();
         training_vocabulary = new HashSet<String>();
         training_classifications = new HashSet<String>();
         for (Map.Entry<String, Pair<String, Map<String, Integer>>>
@@ -40,6 +38,7 @@ public class MNB_probability
 
     public void computeClassProbability()
     {
+        ClassProbabilities = new HashMap<String, Double>();
         Map<String,Integer> ClassCounts = new HashMap<String,Integer>();
         for (Map.Entry<String, Pair<String, Map<String, Integer>>>
                 Document : training_set.entrySet())
@@ -59,6 +58,7 @@ public class MNB_probability
 
     public void computeWordProbability()
     {
+        WordProbabilities = new HashMap<String, Map<String, Double>>();
         Map<String, Integer> classDenominators =
             wordProbabilityDenominators();
 
