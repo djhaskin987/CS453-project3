@@ -6,6 +6,8 @@ public class MNB_classification
 {
     public static double TRAINING_RATIO = .8;
 
+    MNB_probability odds;
+
     Map<String,Pair<String,Map<String, Integer>>>
         DC;
     Map<String,Pair<String,Map<String, Integer>>>
@@ -53,9 +55,49 @@ public class MNB_classification
             training_set = DC_training;
             test_set = DC_test;
         }
+        odds = new MNB_probability(training_set);
+        odds.computeWordProbability();
+        odds.computeClassProbability();
+
     }
 
 
+    // document -> classification
+    public String label(Map<String, Integer> document)
+    {
+        List<Double> PdcPc = new LinkedList<Double>();
+
+        for (String c : Classifications)
+        {
+            double Pc = odds.getClassProbability(c);
+
+            double P_d_given_c_reduce = 1.0;
+            for (String word : Vocabulary)
+            {
+                double P_w_given_c = odds.getWordProbability(word,c);
+                Integer retrieve = document.get(word);
+                double tf_wd = 0.0;
+                if (retrieve != null)
+                {
+                    tf_wd = retrieve.doubleValue();
+                }
+                P_d_given_c_reduce *= Math.pow(P_w_given_c,tf_wd);
+            }
+            double P_d_given_c = P_d_given_c_reduce;
+            PdcPc.add(P_d_given_c*Pc);
+        }
+        double PdcPc_sum = 0.0;
+        for (Double d : PdcPc)
+        {
+            PdcPc_sum += d.doubleValue();
+        }
+        List<Double> Pcd = new LinkedList<Double>();
+        for (Double n : PdcPc)
+        {
+            Pcd.add(n / PdcPc_sum);
+        }
+        return Collections.max(Pcd);
+    }
 
     private Set<String> featureSelection(
             int M)
@@ -439,7 +481,7 @@ public class MNB_classification
     {
         MNB_classification c =
             new MNB_classification("../test/s9test", "../data/stopwords",
-                    true,
+                    false,
                     2);
         System.out.println("Tokens:");
         System.out.println(c.DC);
