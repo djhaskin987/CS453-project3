@@ -61,43 +61,60 @@ public class MNB_classification
 
     }
 
-
-    // document -> classification
-    public String label(Map<String, Integer> document)
+    private Map<String, Pair<String, Map<String, Integer>>>
+        ClassifyTokens(Map<String, List<String>> CorpusTokens,
+                String CorpusDirName)
     {
-        List<Double> PdcPc = new LinkedList<Double>();
-
-        for (String c : Classifications)
+        // ID -> (Class,(Tokens -> Count))
+        Map<String, Pair<String, Map<String, Integer>>> returned =
+            new HashMap<String,Pair<String,Map<String,Integer>>>();
+        for (Map.Entry<String, List<String>> FileTokens :
+                CorpusTokens.entrySet())
         {
-            double Pc = odds.getClassProbability(c);
+            String FileName = FileTokens.getKey();
+            String FileNameSansBase =
+                FileName.substring(CorpusDirName.length() + 1);
 
-            double P_d_given_c_reduce = 1.0;
-            for (String word : Vocabulary)
+            String RawClass =
+                FileNameSansBase.replaceFirst("/[^/]*$","");
+            String Class =
+                RawClass.replace('/','.');
+
+            String BaseFileName =
+                FileNameSansBase.replaceAll("[^/]*/","");
+
+            Map<String, Integer>
+                WordCounts = new HashMap<String,Integer>();
+
+            for (String token : FileTokens.getValue())
             {
-                double P_w_given_c = odds.getWordProbability(word,c);
-                Integer retrieve = document.get(word);
-                double tf_wd = 0.0;
-                if (retrieve != null)
+                Integer count = WordCounts.get(token);
+                if (count == null)
                 {
-                    tf_wd = retrieve.doubleValue();
+                    count = new Integer(1);
+                    WordCounts.put(token, count);
                 }
-                P_d_given_c_reduce *= Math.pow(P_w_given_c,tf_wd);
+                else
+                {
+                    WordCounts.remove(token);
+                    WordCounts.put(token, new Integer(
+                                count.intValue() + 1));
+                }
             }
-            double P_d_given_c = P_d_given_c_reduce;
-            PdcPc.add(P_d_given_c*Pc);
+
+            Pair<String,
+                Map<String, Integer>> DocumentStats =
+                    new Pair<String, Map<String, Integer>>(
+                            Class,
+                            WordCounts
+                            );
+            returned.put(
+                    BaseFileName,
+                    DocumentStats);
         }
-        double PdcPc_sum = 0.0;
-        for (Double d : PdcPc)
-        {
-            PdcPc_sum += d.doubleValue();
-        }
-        List<Double> Pcd = new LinkedList<Double>();
-        for (Double n : PdcPc)
-        {
-            Pcd.add(n / PdcPc_sum);
-        }
-        return Collections.max(Pcd);
+        return returned;
     }
+
 
     private Set<String> featureSelection(
             int M)
@@ -394,62 +411,6 @@ public class MNB_classification
 
     }
 
-    private Map<String, Pair<String, Map<String, Integer>>>
-        ClassifyTokens(Map<String, List<String>> CorpusTokens,
-                String CorpusDirName)
-    {
-        // ID -> (Class,(Tokens -> Count))
-        Map<String, Pair<String, Map<String, Integer>>> returned =
-            new HashMap<String,Pair<String,Map<String,Integer>>>();
-        for (Map.Entry<String, List<String>> FileTokens :
-                CorpusTokens.entrySet())
-        {
-            String FileName = FileTokens.getKey();
-            String FileNameSansBase =
-                FileName.substring(CorpusDirName.length() + 1);
-
-            String RawClass =
-                FileNameSansBase.replaceFirst("/[^/]*$","");
-            String Class =
-                RawClass.replace('/','.');
-            Classifications.add(Class);
-
-            String BaseFileName =
-                FileNameSansBase.replaceAll("[^/]*/","");
-
-            Map<String, Integer>
-                WordCounts = new HashMap<String,Integer>();
-
-            for (String token : FileTokens.getValue())
-            {
-                Vocabulary.add(token);
-                Integer count = WordCounts.get(token);
-                if (count == null)
-                {
-                    count = new Integer(1);
-                    WordCounts.put(token, count);
-                }
-                else
-                {
-                    WordCounts.remove(token);
-                    WordCounts.put(token, new Integer(
-                                count.intValue() + 1));
-                }
-            }
-
-            Pair<String,
-                Map<String, Integer>> DocumentStats =
-                    new Pair<String, Map<String, Integer>>(
-                            Class,
-                            WordCounts
-                            );
-            returned.put(
-                    BaseFileName,
-                    DocumentStats);
-        }
-        return returned;
-    }
-
     private void LoadCorpusTokens(Map<String, List<String>> CorpusTokens,
             String CorpusDirName, StopWords sw)
     {
@@ -477,25 +438,60 @@ public class MNB_classification
         System.out.println("Done.");
     }
 
+    // document -> classification
+    public String label(Map<String, Integer> document)
+    {
+        List<Pair<Double,String>> PdcPc =
+            new LinkedList<Pair<Double,String>>();
+
+        for (String c : odds.getClassifications())
+        {
+            double Pc = odds.getClassProbability(c);
+
+            double P_d_given_c_reduce = 1.0;
+            for (String word : odds.getVocabulary())
+            {
+                double P_w_given_c = odds.getWordProbability(word,c);
+                Integer retrieve = document.get(word);
+                double tf_wd = 0.0;
+                if (retrieve != null)
+                {
+                    tf_wd = retrieve.doubleValue();
+                }
+                P_d_given_c_reduce *= Math.pow(P_w_given_c,tf_wd);
+            }
+            double P_d_given_c = P_d_given_c_reduce;
+            PdcPc.add(new Pair<Double,String>(P_d_given_c*Pc,c));
+        }
+        double PdcPc_sum = 0.0;
+        for (Pair<Double,String> d : PdcPc)
+        {
+            PdcPc_sum += d.First().doubleValue();
+        }
+        List<Pair<Double,String>> Pdc =
+            new LinkedList<Pair<Double,String>>();
+
+        for (Pair<Double,String> n : PdcPc)
+        {
+            Pdc.add(new Pair<Double,String>(
+                        n.First().doubleValue() / PdcPc_sum,
+                        n.Second()));
+        }
+        return Collections.max(Pdc).Second();
+    }
+
     public static void main(String args[])
     {
         MNB_classification c =
             new MNB_classification("../test/s9test", "../data/stopwords",
                     false,
                     2);
-        System.out.println("Tokens:");
-        System.out.println(c.DC);
-        System.out.println("RAW TRAINING");
-        System.out.println(c.DC_training);
-        System.out.println("RAW TEST");
-        System.out.println(c.DC_test);
-        System.out.println("TRAINING");
-        System.out.println(c.training_set);
-        System.out.println("TEST");
-        System.out.println(c.test_set);
-        System.out.println("CLASSES");
-        System.out.println(c.Classifications);
-        System.out.println("VOCAB");
-        System.out.println(c.Vocabulary);
+        for (Map.Entry<String, Pair<String, Map<String,Integer>>>
+                Document : c.test_set.entrySet())
+        {
+            System.out.println("Label for '" + Document.getKey() +
+                    "': '" + c.label(Document.getValue().Second()) +
+                    "'");
+        }
     }
 }

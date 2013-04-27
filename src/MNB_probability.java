@@ -1,3 +1,4 @@
+import java.util.*;
 public class MNB_probability
 {
     Map<String, Pair<String, Map<String, Integer>>>
@@ -6,6 +7,7 @@ public class MNB_probability
     Set<String> training_vocabulary;
 
     Map<String, Map<String, Double>> WordProbabilities;
+    Map<String, Double> ClassProbabilities;
 
     public MNB_probability(Map<String, Pair<String, Map<String, Integer>>>
         training_set)
@@ -13,8 +15,8 @@ public class MNB_probability
         this.training_set = training_set;
         WordProbabilities = new HashMap<String, Map<String, Double>>();
         ClassProbabilities = new HashMap<String, Double>();
-        training_vocabulary = new Set<String>();
-        training_classifications = new Set<String>();
+        training_vocabulary = new HashSet<String>();
+        training_classifications = new HashSet<String>();
         for (Map.Entry<String, Pair<String, Map<String, Integer>>>
                 Document : training_set.entrySet())
         {
@@ -26,19 +28,19 @@ public class MNB_probability
         }
     }
 
-    Set<String> vocabulary()
+    public Set<String> getVocabulary()
     {
         return training_vocabulary;
     }
 
-    Set<String> classifications()
+    public Set<String> getClassifications()
     {
         return training_classifications;
     }
-    
-    public void computeClassProbabilites()
+
+    public void computeClassProbability()
     {
-        Map<String,Integer> ClassCounts = new Map<String,Integer>();
+        Map<String,Integer> ClassCounts = new HashMap<String,Integer>();
         for (Map.Entry<String, Pair<String, Map<String, Integer>>>
                 Document : training_set.entrySet())
         {
@@ -47,25 +49,110 @@ public class MNB_probability
                     ClassCounts,
                     c);
         }
-        for (Map.Entry<String, Integer> ClassCount : ClassCounts)
+        for (Map.Entry<String, Integer> ClassCount : ClassCounts.entrySet())
         {
-            ClassProbabilities.add(ClassCount.getValue().doubleValue() /
+            ClassProbabilities.put(ClassCount.getKey(),
+                    ClassCount.getValue().doubleValue() /
                     (double) training_set.size());
         }
     }
 
     public void computeWordProbability()
     {
+        Map<String, Integer> classDenominators =
+            wordProbabilityDenominators();
+
+        Map<String, Map<String, Integer>> tf_wc =
+            termFrequencyWordGivenClass();
+
         for (String c : training_classifications)
         {
-            WordProbabilities.put(c,
-                    new HashMap<String, Double>());
+            HashMap<String,Double> WordProbabilityGivenClass =
+                new HashMap<String,Double>();
+            double denominator =
+                classDenominators.get(c).doubleValue();
+            Map<String,Integer>
+                ClassTermFrequencies =
+                tf_wc.get(c);
             for (String w : training_vocabulary)
             {
-                tf_wc = 0;
-                k
+                Integer wordCount = ClassTermFrequencies.get(w);
+                if (wordCount == null)
+                {
+                    wordCount = new Integer(0);
+                }
+                WordProbabilityGivenClass.put(
+                        w,
+                        (wordCount + 1.0) /
+                        denominator);
             }
+            WordProbabilities.put(c, WordProbabilityGivenClass);
         }
     }
 
+    public Map<String, Map<String, Integer>>
+        termFrequencyWordGivenClass()
+    {
+        Map<String, Map<String, Integer>> tf_wc =
+            new HashMap<String, Map<String, Integer>>();
+        for (Map.Entry<String, Pair<String, Map<String, Integer>>>
+                Document : training_set.entrySet())
+        {
+            Map<String, Integer> termCountGivenClass =
+                tf_wc.get(Document.getValue().First());
+            if (termCountGivenClass == null)
+            {
+                termCountGivenClass = new HashMap<String,Integer>();
+            }
+            // Then, fill above with stuff like below, but different.
+            for (Map.Entry<String, Integer> TermCount :
+                    Document.getValue().Second().entrySet())
+            {
+                Utilities.MapAddCount(termCountGivenClass,
+                       TermCount.getKey(),
+                    TermCount.getValue());
+            }
+
+            tf_wc.put(Document.getValue().First(),
+                    termCountGivenClass);
+        }
+        return tf_wc;
+    }
+
+    public Map<String,Integer> wordProbabilityDenominators()
+    {
+        Map<String,Integer> classTermCount = new HashMap<String,Integer>();
+
+        // compute |c|
+        for (Map.Entry<String, Pair<String, Map<String, Integer>>>
+                Document : training_set.entrySet())
+        {
+            for (Map.Entry<String, Integer> TermCount :
+                    Document.getValue().Second().entrySet())
+            {
+                Utilities.MapAddCount(classTermCount,
+                        Document.getValue().First(),
+                    TermCount.getValue());
+            }
+        }
+
+        // Add |V|
+        for (String c : training_vocabulary)
+        {
+            Utilities.MapAddCount(
+                    classTermCount,
+                    c,
+                    training_vocabulary.size());
+        }
+        return classTermCount;
+    }
+
+    public double getWordProbability(String word, String c)
+    {
+        return WordProbabilities.get(c).get(word).doubleValue();
+    }
+    public double getClassProbability(String c)
+    {
+        return ClassProbabilities.get(c).doubleValue();
+    }
 }

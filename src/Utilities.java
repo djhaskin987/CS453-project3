@@ -5,15 +5,23 @@ public class Utilities
             Map<K,Integer> map,
             K next)
     {
+        MapAddCount(map,next,1);
+    }
+
+    public static <K> void MapAddCount(
+            Map<K,Integer> map,
+            K next,
+            Integer amount)
+    {
         Integer Count = map.get(next);
         if (Count == null)
         {
-            Count = new Integer(1);
+            Count = new Integer(amount);
         }
         else
         {
             Count = new Integer(
-                    Count.intValue() + 1);
+                    Count.intValue() + amount.intValue());
             map.remove(next);
         }
         map.put(next, Count);

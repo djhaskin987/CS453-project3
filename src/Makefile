@@ -7,7 +7,7 @@ clean:
 #Search.class: Classifier.java StopWords.class Tokenizer.class MNB_classification.class
 #	javac -Xlint Classifier.java
 
-MNB_classification.class: MNB_classification.java Tokenizer.class Pair.class Utilities.class ReverseComparator.class
+MNB_classification.class: MNB_classification.java Tokenizer.class Pair.class Utilities.class ReverseComparator.class MNB_probability.class
 	javac -Xlint MNB_classification.java
 
 Tokenizer.class: Tokenizer.java StopWords.class
@@ -18,6 +18,9 @@ StopWords.class: StopWords.java
 
 Utilities.class: Utilities.java
 	javac -Xlint Utilities.java
+
+MNB_probability.class: MNB_probability.java
+	javac -Xlint MNB_probability.java
 
 ReverseComparator.class: ReverseComparator.java
 	javac -Xlint ReverseComparator.java
