@@ -17,11 +17,14 @@ MNB_evaluation.class: MNB_classification.class MNB_evaluation.java
 MNB_classification.class: MNB_classification.java Pair.class Utilities.class ReverseComparator.class MNB_probability.class
 	javac -Xlint MNB_classification.java
 
-Tokenizer.class: Tokenizer.java StopWords.class
+Tokenizer.class: Tokenizer.java StopWords.class PorterStemmer.class
 	javac -Xlint Tokenizer.java
 
 StopWords.class: StopWords.java
 	javac -Xlint StopWords.java
+
+PorterStemmer.class: PorterStemmer.java
+	javac -Xlint PorterStemmer.java
 
 Utilities.class: Utilities.java
 	javac -Xlint Utilities.java

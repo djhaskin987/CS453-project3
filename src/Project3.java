@@ -1,6 +1,7 @@
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class Project3
 {
@@ -72,7 +73,7 @@ public class Project3
             new HashMap<String,List<String>>();
         Map<String,Pair<String,Map<String, Integer>>>
             DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
-        LoadDocumentCollection(DC,"../data/20NG","../data/20NG", 0L, sw);
+        LoadDocumentCollection(DC,"../data/wiki","../data/wiki", 0L, sw);
 
         MNB_classification cl;
         MNB_evaluation eval;
@@ -92,22 +93,34 @@ public class Project3
             cl.train();
             System.out.println("Done training.");
             long endTime = System.currentTimeMillis();
-            double trainSeconds = (endTime - startTime) / 1000D;
+            long trainDuration = (endTime - startTime);
+            double trainSeconds = (double)trainDuration / 1000D;
             trainSecondsSum += trainSeconds;
 
-            System.out.println("Training time: " + trainSeconds + " seconds");
-            System.out.println("");
+            System.out.println("Training time: " +
+                String.format("%d:%02d:%02d.%03d",
+                    trainDuration / 3600000,
+                    trainDuration / 60000 % 60,
+                    trainDuration / 1000 % 60,
+                    trainDuration % 1000));
+            System.out.println();
             System.out.println("Testing with all features...");
 
             System.out.println("Determining Accuracy...");
             startTime = System.currentTimeMillis();
             double acc = eval.accuracyMeasure(cl.getTestSet());
             endTime = System.currentTimeMillis();
+            long evalDuration = (endTime - startTime);
             accSum += acc;
             System.out.println("Done measuring Accuracy.");
-            double testSeconds = (endTime - startTime) / 1000D;
+            double testSeconds = (double)evalDuration / 1000D;
 
-            System.out.println("Test time: " + testSeconds + " seconds");
+            System.out.println("Test time: " +
+                String.format("%d:%02d:%02d.%03d",
+                    evalDuration / 3600000,
+                    evalDuration / 60000 % 60,
+                    evalDuration / 1000 % 60,
+                    evalDuration % 1000));
             testSecondsSum += testSeconds;
 
             System.out.println("Accuracy: " + acc);

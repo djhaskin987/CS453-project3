@@ -13,7 +13,6 @@ public class MNB_classification
     Map<String,Pair<String,Map<String, Integer>>>
         training_set;
 
-
     public MNB_classification(Map<String,Pair<String,Map<String, Integer>>>
         DC)
     {
@@ -366,16 +365,13 @@ public class MNB_classification
             double Pc = odds.getClassProbability(c);
 
             double P_d_given_c_reduce = 1.0;
-            for (String word : odds.getVocabulary())
+            for (String word : document.keySet())
             {
                 double P_w_given_c = odds.getWordProbability(word,c);
                 Integer retrieve = document.get(word);
-                double tf_wd = 0.0;
-                if (retrieve != null)
-                {
-                    tf_wd = retrieve.doubleValue();
-                }
-                P_d_given_c_reduce *= Math.pow(P_w_given_c,tf_wd);
+                if (retrieve == null || retrieve.intValue() == 0)
+                    continue;
+                P_d_given_c_reduce *= Math.pow(P_w_given_c,retrieve.doubleValue());
             }
             double P_d_given_c = P_d_given_c_reduce;
             PdcPc.add(new Pair<Double,String>(P_d_given_c*Pc,c));
@@ -396,5 +392,4 @@ public class MNB_classification
         }
         return Collections.max(Pdc).Second();
     }
-
 }

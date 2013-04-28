@@ -118,7 +118,7 @@ public class Tokenizer
         return sentence.toString();
     }
 
-    public static List<String> tokenizeStringCaseSensitive(String line)
+    public static List<String> tokenizeString(String line)
     {
         List<String> tokens =
             new LinkedList<String>();
@@ -134,34 +134,19 @@ public class Tokenizer
         String currentToken;
         for (int i = 0; i < lineTokens.length; i++)
         {
-            currentToken = lineTokens[i].trim();
+            currentToken = lineTokens[i].trim().toLowerCase();
             if (currentToken.length() <= 0)
             {
                 continue;
             }
             else
             {
-                tokens.add(currentToken);
+                tokens.add(PorterStemmer.stem(currentToken));
             }
         }
 
         return tokens;
     }
-
-    public static List<String> tokenizeString(String line)
-    {
-        List<String> tokens = tokenizeStringCaseSensitive(line);
-        ListIterator<String> tokenStream = tokens.listIterator();
-        String CurrentToken;
-        while (tokenStream.hasNext())
-        {
-            CurrentToken = tokenStream.next();
-            tokenStream.set(CurrentToken.toLowerCase());
-        }
-        return tokens;
-    }
-
-
 
     public static List<String> tokens(String filename, StopWords stopwords)
     {
