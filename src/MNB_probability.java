@@ -8,6 +8,7 @@ public class MNB_probability
 
     Map<String, Map<String, Double>> WordProbabilities;
     Map<String, Double> ClassProbabilities;
+    Map<String, Integer> classDenominators;
 
     public MNB_probability(Map<String, Pair<String, Map<String, Integer>>>
         training_set)
@@ -59,7 +60,7 @@ public class MNB_probability
     public void computeWordProbability()
     {
         WordProbabilities = new HashMap<String, Map<String, Double>>();
-        Map<String, Integer> classDenominators =
+        classDenominators =
             wordProbabilityDenominators();
 
         Map<String, Map<String, Integer>> tf_wc =
@@ -74,24 +75,22 @@ public class MNB_probability
             Map<String,Integer>
                 ClassTermFrequencies =
                 tf_wc.get(c);
-            for (String w : training_vocabulary)
+            for (String w : ClassTermFrequencies.keySet())
             {
                 Integer wordCount = ClassTermFrequencies.get(w);
-                if (wordCount == null)
+                if (wordCount != null)
                 {
-                    wordCount = new Integer(0);
+                    WordProbabilityGivenClass.put(
+                            w,
+                            (wordCount + 1.0) /
+                            denominator);
                 }
-                WordProbabilityGivenClass.put(
-                        w,
-                        (wordCount + 1.0) /
-                        denominator);
             }
             WordProbabilities.put(c, WordProbabilityGivenClass);
         }
     }
 
-    public Map<String, Map<String, Integer>>
-        termFrequencyWordGivenClass()
+    public Map<String, Map<String, Integer>> termFrequencyWordGivenClass()
     {
         Map<String, Map<String, Integer>> tf_wc =
             new HashMap<String, Map<String, Integer>>();
@@ -104,7 +103,6 @@ public class MNB_probability
             {
                 termCountGivenClass = new HashMap<String,Integer>();
             }
-            // Then, fill above with stuff like below, but different.
             for (Map.Entry<String, Integer> TermCount :
                     Document.getValue().Second().entrySet())
             {
@@ -149,7 +147,17 @@ public class MNB_probability
 
     public double getWordProbability(String word, String c)
     {
-        return WordProbabilities.get(c).get(word).doubleValue();
+        Map<String,Double> WordProbabilityGivenClass =
+            WordProbabilities.get(c);
+        Double prob = WordProbabilityGivenClass.get(word);
+        if (prob == null)
+        {
+            return 1.0 / classDenominators.get(c).doubleValue();
+        }
+        else
+        {
+            return prob.doubleValue();
+        }
     }
     public double getClassProbability(String c)
     {
