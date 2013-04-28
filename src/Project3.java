@@ -28,15 +28,17 @@ public class Project3
             }
             else
             {
-                String FileName = listOfFiles[i].getName();
+                String FileName = CorpusDirName + "/" +
+                    listOfFiles[i].getName();
                 List<String> tokList =
                     Tokenizer.tokens(RelativePath, sw);
                 String FileNameSansBase =
-                    FileName.replaceFirst("^" + CorpusBaseDirName,"");
+                    FileName.replaceFirst("^" +
+                            (CorpusBaseDirName.replaceAll("[.]","[.]")),"");
                 String RawClass =
                     FileNameSansBase.replaceFirst("/[^/]*$","");
                 String Class =
-                    RawClass.replace('/','.');
+                    RawClass.replaceAll("/+",".").replaceFirst("^[.]+","");
 
                 String BaseFileName =
                     FileNameSansBase.replaceAll("[^/]*/","");
@@ -73,7 +75,8 @@ public class Project3
             new HashMap<String,List<String>>();
         Map<String,Pair<String,Map<String, Integer>>>
             DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
-        LoadDocumentCollection(DC,"../data/wiki","../data/wiki", 0L, sw);
+        LoadDocumentCollection(DC,"../data/20NG","../data/20NG", 0L, sw);
+        DecimalFormat percent = new DecimalFormat("##.##%");
 
         MNB_classification cl;
         MNB_evaluation eval;
@@ -83,7 +86,7 @@ public class Project3
         double accSum = 0.0;
         for (int i = 1; i <= 5; i++)
         {
-            System.out.println("Run #" + i + ".");
+            System.out.println("Run #" + i + " ==============================");
             System.out.println("Initializing...");
             cl = new MNB_classification(DC);
             eval = new MNB_evaluation(cl);
@@ -123,15 +126,27 @@ public class Project3
                     evalDuration % 1000));
             testSecondsSum += testSeconds;
 
-            System.out.println("Accuracy: " + acc);
+            System.out.println("Accuracy: " + percent.format(acc));
 
         }
+        long trainDurationAverage = (long)((trainSecondsSum / 5.0) * 1000.0);
+        long testDurationAverage = (long)((testSecondsSum / 5.0) * 1000.0);
+        System.out.println("=====================================");
+
         System.out.println("Average training time: " +
-                (trainSecondsSum / 5.0) + " seconds");
+                String.format("%d:%02d:%02d.%03d",
+                    trainDurationAverage / 3600000,
+                    trainDurationAverage / 60000 % 60,
+                    trainDurationAverage / 1000 % 60,
+                    trainDurationAverage % 1000));
         System.out.println("Average test time: " +
-                (testSecondsSum / 5.0) + " seconds");
+                String.format("%d:%02d:%02d.%03d",
+                    testDurationAverage / 3600000,
+                    testDurationAverage / 60000 % 60,
+                    testDurationAverage / 1000 % 60,
+                    testDurationAverage % 1000));
         System.out.println("Average accuracy: " +
-                (accSum / 5.0));
+                percent.format(accSum / 5.0));
     }
 
 }
