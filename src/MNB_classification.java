@@ -28,13 +28,6 @@ public class MNB_classification
 
         training_set = DC_training;
         test_set = DC_test;
-
-        if (false)
-        {
-        }
-        else
-        {
-        }
         odds = new MNB_probability(training_set);
     }
 

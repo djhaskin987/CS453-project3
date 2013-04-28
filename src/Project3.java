@@ -4,8 +4,12 @@ import java.io.IOException;
 
 public class Project3
 {
-    private static void LoadCorpusTokens(Map<String, List<String>> CorpusTokens,
-            String CorpusDirName, StopWords sw)
+    private static long LoadDocumentCollection(
+            Map<String,Pair<String,Map<String, Integer>>> DC,
+            String CorpusDirName,
+            String CorpusBaseDirName,
+            long numDocs,
+            StopWords sw)
     {
         System.out.println("Tokenizing corpus found under " + CorpusDirName +
                 "...");
@@ -18,71 +22,47 @@ public class Project3
 
             if (listOfFiles[i].isDirectory())
             {
-                LoadCorpusTokens(CorpusTokens,RelativePath,sw);
+                numDocs = LoadDocumentCollection(DC,RelativePath,
+                        CorpusBaseDirName,numDocs,sw);
             }
             else
             {
                 String FileName = listOfFiles[i].getName();
                 List<String> tokList =
                     Tokenizer.tokens(RelativePath, sw);
-                CorpusTokens.put(RelativePath, tokList);
-            }
-        }
-        System.out.println("Done.");
-    }
+                String FileNameSansBase =
+                    FileName.replaceFirst("^" + CorpusBaseDirName,"");
+                String RawClass =
+                    FileNameSansBase.replaceFirst("/[^/]*$","");
+                String Class =
+                    RawClass.replace('/','.');
 
-    private static Map<String, Pair<String, Map<String, Integer>>>
-        ClassifyTokens(Map<String, List<String>> CorpusTokens,
-                String CorpusDirName)
-    {
-        // ID -> (Class,(Tokens -> Count))
-        Map<String, Pair<String, Map<String, Integer>>> returned =
-            new HashMap<String,Pair<String,Map<String,Integer>>>();
-        for (Map.Entry<String, List<String>> FileTokens :
-                CorpusTokens.entrySet())
-        {
-            String FileName = FileTokens.getKey();
-            String FileNameSansBase =
-                FileName.substring(CorpusDirName.length() + 1);
+                String BaseFileName =
+                    FileNameSansBase.replaceAll("[^/]*/","");
 
-            String RawClass =
-                FileNameSansBase.replaceFirst("/[^/]*$","");
-            String Class =
-                RawClass.replace('/','.');
+                Map<String, Integer>
+                    WordCounts = new HashMap<String,Integer>();
 
-            String BaseFileName =
-                FileNameSansBase.replaceAll("[^/]*/","");
-
-            Map<String, Integer>
-                WordCounts = new HashMap<String,Integer>();
-
-            for (String token : FileTokens.getValue())
-            {
-                Integer count = WordCounts.get(token);
-                if (count == null)
+                for (String token : tokList)
                 {
-                    count = new Integer(1);
-                    WordCounts.put(token, count);
+                    Utilities.MapIncrementCount(WordCounts, token);
                 }
-                else
+
+                Pair<String,
+                    Map<String, Integer>> DocumentStats =
+                        new Pair<String, Map<String, Integer>>(
+                                Class, WordCounts);
+                DC.put(BaseFileName, DocumentStats);
+                numDocs++;
+                if (numDocs % 200 == 0)
                 {
-                    WordCounts.remove(token);
-                    WordCounts.put(token, new Integer(
-                                count.intValue() + 1));
+                    System.out.print("Loaded " + numDocs +
+                                " Documents.\r");
                 }
             }
-
-            Pair<String,
-                Map<String, Integer>> DocumentStats =
-                    new Pair<String, Map<String, Integer>>(
-                            Class,
-                            WordCounts
-                            );
-            returned.put(
-                    BaseFileName,
-                    DocumentStats);
         }
-        return returned;
+        System.out.println("                                \rDone.");
+        return numDocs;
     }
 
     public static void main(String [] args)
@@ -90,9 +70,9 @@ public class Project3
         StopWords sw = new StopWords("../data/stopwords");
         Map<String,List<String>> CorpusTokens =
             new HashMap<String,List<String>>();
-        LoadCorpusTokens(CorpusTokens, "../data/20NG", sw);
         Map<String,Pair<String,Map<String, Integer>>>
-            DC = ClassifyTokens(CorpusTokens, "../data/20NG");
+            DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
+        LoadDocumentCollection(DC,"../data/20NG","../data/20NG", 0L, sw);
 
         MNB_classification cl;
         MNB_evaluation eval;
@@ -103,22 +83,28 @@ public class Project3
         for (int i = 1; i <= 5; i++)
         {
             System.out.println("Run #" + i + ".");
+            System.out.println("Initializing...");
             cl = new MNB_classification(DC);
             eval = new MNB_evaluation(cl);
-
+            System.out.println("Done initializing.");
             long startTime = System.currentTimeMillis();
+            System.out.println("Training...");
             cl.train();
+            System.out.println("Done training.");
             long endTime = System.currentTimeMillis();
             double trainSeconds = (endTime - startTime) / 1000D;
             trainSecondsSum += trainSeconds;
 
             System.out.println("Training time: " + trainSeconds + " seconds");
+            System.out.println("");
             System.out.println("Testing with all features...");
 
+            System.out.println("Determining Accuracy...");
             startTime = System.currentTimeMillis();
             double acc = eval.accuracyMeasure(cl.getTestSet());
-            accSum += acc;
             endTime = System.currentTimeMillis();
+            accSum += acc;
+            System.out.println("Done measuring Accuracy.");
             double testSeconds = (endTime - startTime) / 1000D;
 
             System.out.println("Test time: " + testSeconds + " seconds");

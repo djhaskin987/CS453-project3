@@ -122,12 +122,14 @@ public class Tokenizer
     {
         List<String> tokens =
             new LinkedList<String>();
-
-        line = line.replaceAll("([\\p{Punct}\\p{Space}-]|[^\\p{Graph}])+$","");
-        line = line.replaceAll("^([\\p{Punct}\\p{Space}-]|[^\\p{Graph}])+","");
+        line = line.replaceFirst("\\p{Punct}+$","");
+        line = line.replaceFirst("\\p{Space}+$","");
+        line = line.replaceFirst("[^\\p{Graph}]+$","");
+        line = line.replaceFirst("^\\p{Punct}+","");
+        line = line.replaceFirst("^\\p{Space}+","");
+        line = line.replaceFirst("^[^\\p{Graph}]+","");
         String [] lineTokens =
-            line.split(
-                    "([\\p{Punct}-]|[^\\p{Graph}])*\\p{Space}+([\\p{Punct}-]|[^\\p{Graph}])*");
+            line.split("([\\p{Punct}-]|[^\\p{Graph}])*[\\p{Space}]+([\\p{Punct}-]|[^\\p{Graph}])*");
 
         String currentToken;
         for (int i = 0; i < lineTokens.length; i++)
@@ -163,7 +165,6 @@ public class Tokenizer
 
     public static List<String> tokens(String filename, StopWords stopwords)
     {
-        System.out.println("Tokenizing " + filename + "...");
         // All lower-cased, stop-worded, tokens.
         List<String> tokens =
             new LinkedList<String>();
@@ -178,7 +179,8 @@ public class Tokenizer
                         "ISO-8859-1"));
             while ((currentLine = reader.readLine()) != null)
             {
-                for (String token : tokenizeString(currentLine))
+                List<String> LineTokens = tokenizeString(currentLine);
+                for (String token : LineTokens)
                 {
                     if (!stopwords.contains(token))
                     {
