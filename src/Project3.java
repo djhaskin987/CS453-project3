@@ -70,12 +70,22 @@ public class Project3
 
     public static void main(String [] args)
     {
+        String corpus;
+        if (args.length > 0)
+        {
+            corpus = args[0];
+        }
+        else
+        {
+            corpus = "../data/20NG";
+        }
+
         StopWords sw = new StopWords("../data/stopwords");
         Map<String,List<String>> CorpusTokens =
             new HashMap<String,List<String>>();
         Map<String,Pair<String,Map<String, Integer>>>
             DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
-        LoadDocumentCollection(DC,"../data/20NG","../data/20NG", 0L, sw);
+        LoadDocumentCollection(DC,corpus,corpus, 0L, sw);
         DecimalFormat percent = new DecimalFormat("##.##%");
 
         MNB_classification cl;
