@@ -68,24 +68,9 @@ public class Project3
         return numDocs;
     }
 
-    public static void main(String [] args)
+    public static void report(Map<String,Pair<String,Map<String,Integer>>>
+            DC, int numFeatures)
     {
-        String corpus;
-        if (args.length > 0)
-        {
-            corpus = args[0];
-        }
-        else
-        {
-            corpus = "../data/20NG";
-        }
-
-        StopWords sw = new StopWords("../data/stopwords");
-        Map<String,List<String>> CorpusTokens =
-            new HashMap<String,List<String>>();
-        Map<String,Pair<String,Map<String, Integer>>>
-            DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
-        LoadDocumentCollection(DC,corpus,corpus, 0L, sw);
         DecimalFormat percent = new DecimalFormat("##.##%");
 
         MNB_classification cl;
@@ -94,12 +79,26 @@ public class Project3
         double trainSecondsSum = 0.0;
         double testSecondsSum = 0.0;
         double accSum = 0.0;
+        if (numFeatures > 0)
+        {
+            System.out.println("Reporting results for ***" + numFeatures +
+                    " FEATURES***");
+        }
+        else
+        {
+            System.out.println("Reporting results for using ***ALL FEATURES***");
+        }
         for (int i = 1; i <= 5; i++)
         {
             System.out.println("Run #" + i + " ==============================");
             System.out.println("Initializing...");
             cl = new MNB_classification(DC);
+            if (numFeatures > 0)
+            {
+                cl.featureSelection(numFeatures);
+            }
             eval = new MNB_evaluation(cl);
+
             System.out.println("Done initializing.");
             long startTime = System.currentTimeMillis();
             System.out.println("Training...");
@@ -159,4 +158,27 @@ public class Project3
                 percent.format(accSum / 5.0));
     }
 
+    public static void main(String [] args)
+    {
+        String corpusLocation;
+        if (args.length == 0)
+        {
+            corpusLocation = "../data/20NG";
+        }
+        else
+        {
+            corpusLocation = args[0];
+        }
+        StopWords sw = new StopWords("../data/stopwords");
+        Map<String,List<String>> CorpusTokens =
+            new HashMap<String,List<String>>();
+        Map<String,Pair<String,Map<String, Integer>>>
+            DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
+        LoadDocumentCollection(DC,corpusLocation,corpusLocation, 0L, sw);
+        report(DC,0);
+        report(DC,6200);
+        report(DC,12400);
+        report(DC,18600);
+        report(DC,24800);
+    }
 }
