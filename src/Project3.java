@@ -12,8 +12,6 @@ public class Project3
             long numDocs,
             StopWords sw)
     {
-        System.out.println("Tokenizing corpus found under " + CorpusDirName +
-                "...");
         File corpusDir = new File(CorpusDirName);
         File[] listOfFiles = corpusDir.listFiles();
         for (int i = 0; i < listOfFiles.length; i++)
@@ -172,6 +170,8 @@ public class Project3
         StopWords sw = new StopWords("../data/stopwords");
         Map<String,List<String>> CorpusTokens =
             new HashMap<String,List<String>>();
+        System.out.println("Tokenizing corpus found under " + corpusLocation +
+                "...");
         Map<String,Pair<String,Map<String, Integer>>>
             DC = new HashMap<String,Pair<String,Map<String,Integer>>>();
         LoadDocumentCollection(DC,corpusLocation,corpusLocation, 0L, sw);
