@@ -10,3 +10,7 @@ From the 'src/' directory, simply run this command:
 java -Xmx2g Project3
 
 (You must be under the 'src/' directory for this to work).
+
+The report can be found under the 'doc/' directory as 'Project3Report.pdf'.
+
+
