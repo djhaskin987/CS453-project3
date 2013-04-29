@@ -49,8 +49,7 @@ public class MNB_classification
     }
 
 
-    private Set<String> featureSelection(
-            int M)
+    private Set<String> featureSelection(int M)
     {
         Map<String, Integer> DC_ClassCounts = new HashMap<String,Integer>();
         Map<String, Integer> DC_WordCounts = new HashMap<String,Integer>();
@@ -65,13 +64,13 @@ public class MNB_classification
             Map<String, Integer>> DC_NotWordClassCounts =
                 Utilities.<String,String,Integer>MapMapInit(
                         odds.getVocabulary());
-
+/*
         for (String w : odds.getVocabulary())
         {
             DC_WordClassCounts.put(w, new HashMap<String, Integer>());
             DC_NotWordClassCounts.put(w, new HashMap<String, Integer>());
         }
-
+*/
         for (Map.Entry<String,Pair<String,Map<String,Integer>>>
                 entry : DC_training.entrySet())
         {
