@@ -70,12 +70,16 @@ public class MNB_probability
         {
             HashMap<String,Double> WordProbabilityGivenClass =
                 new HashMap<String,Double>();
-            double denominator =
+            Double denominator =
                 classDenominators.get(c).doubleValue();
+            if (denominator == null)
+            {
+                continue;
+            }
             Map<String,Integer>
                 ClassTermFrequencies =
                 tf_wc.get(c);
-            for (String w : ClassTermFrequencies.keySet())
+            for (String w : training_vocabulary)
             {
                 Integer wordCount = ClassTermFrequencies.get(w);
                 if (wordCount != null)
@@ -83,7 +87,7 @@ public class MNB_probability
                     WordProbabilityGivenClass.put(
                             w,
                             (wordCount + 1.0) /
-                            denominator);
+                            denominator.doubleValue());
                 }
             }
             WordProbabilities.put(c, WordProbabilityGivenClass);
@@ -111,6 +115,7 @@ public class MNB_probability
                     TermCount.getValue());
             }
 
+            tf_wc.remove(Document.getValue().First());
             tf_wc.put(Document.getValue().First(),
                     termCountGivenClass);
         }
