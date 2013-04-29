@@ -1,0 +1,341 @@
+Tokenizing corpus found under ../data/20NG...
+
+
+
+Reporting results for using ***ALL FEATURES***
+Run #1 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:02.049
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:02.248
+Accuracy: 49.3%
+Run #2 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:04.507
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:01.544
+Accuracy: 48.26%
+Run #3 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:01.540
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:01.480
+Accuracy: 49.3%
+Run #4 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:01.707
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:01.362
+Accuracy: 48.36%
+Run #5 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:01.490
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:01.614
+Accuracy: 47.53%
+=====================================
+Average training time: 0:00:02.258
+Average test time: 0:00:01.649
+Average accuracy: 48.55%
+
+
+
+Reporting results for ***6200 FEATURES***
+Run #1 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.140
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.122
+Accuracy: 69.34%
+Run #2 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.152
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.207
+Accuracy: 70.43%
+Run #3 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.142
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.112
+Accuracy: 66.74%
+Run #4 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.142
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.101
+Accuracy: 69.39%
+Run #5 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.138
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.113
+Accuracy: 70.54%
+=====================================
+Average training time: 0:00:00.142
+Average test time: 0:00:00.130
+Average accuracy: 69.29%
+
+
+
+Reporting results for ***12400 FEATURES***
+Run #1 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.263
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.253
+Accuracy: 78.5%
+Run #2 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.263
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.188
+Accuracy: 77.98%
+Run #3 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.283
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.208
+Accuracy: 76.94%
+Run #4 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.283
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.216
+Accuracy: 77.3%
+Run #5 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.284
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.207
+Accuracy: 78.24%
+=====================================
+Average training time: 0:00:00.275
+Average test time: 0:00:00.214
+Average accuracy: 77.79%
+
+
+
+Reporting results for ***18600 FEATURES***
+Run #1 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.423
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.374
+Accuracy: 85.16%
+Run #2 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.411
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.296
+Accuracy: 83.39%
+Run #3 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.428
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.338
+Accuracy: 84.44%
+Run #4 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.400
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.310
+Accuracy: 83.65%
+Run #5 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.416
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.496
+Accuracy: 81.94%
+=====================================
+Average training time: 0:00:00.415
+Average test time: 0:00:00.362
+Average accuracy: 83.72%
+
+
+
+Reporting results for ***24800 FEATURES***
+Run #1 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.572
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.400
+Accuracy: 85.01%
+Run #2 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.580
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.408
+Accuracy: 84.23%
+Run #3 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.644
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.402
+Accuracy: 84.8%
+Run #4 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.575
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.457
+Accuracy: 86.21%
+Run #5 ==============================
+Initializing...
+Done initializing.
+Training...
+Done training.
+Training time: 0:00:00.541
+
+Testing with all features...
+Determining Accuracy...
+Done measuring Accuracy.
+Test time: 0:00:00.391
+Accuracy: 84.59%
+=====================================
+Average training time: 0:00:00.582
+Average test time: 0:00:00.411
+Average accuracy: 84.97%
